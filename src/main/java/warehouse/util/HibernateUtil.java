@@ -12,7 +12,6 @@ public final class HibernateUtil {
 
     public static synchronized SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
-            // читает hibernate.cfg.xml и подключается к базе
             sessionFactory = new Configuration().configure().buildSessionFactory();
         }
         return sessionFactory;

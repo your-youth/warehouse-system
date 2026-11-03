@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Tenant does not log in, so it is a plain entity, not a User subclass
 @Entity
 @Table(name = "tenants")
 public class Tenant {

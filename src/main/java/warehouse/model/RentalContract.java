@@ -20,7 +20,6 @@ public class RentalContract {
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
-    // the agent who made the deal
     @ManyToOne(optional = false)
     @JoinColumn(name = "agent_id")
     private Agent agent;
@@ -31,7 +30,6 @@ public class RentalContract {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    // price is copied from the warehouse, so later price changes do not affect old contracts
     @Column(name = "price_per_month", nullable = false)
     private double pricePerMonth;
 
@@ -63,7 +61,6 @@ public class RentalContract {
         return pricePerMonth * getMonths();
     }
 
-    // agent fee is a percentage of the total price
     public double getAgentCommission() {
         return getTotalPrice() * agent.getFee() / 100;
     }

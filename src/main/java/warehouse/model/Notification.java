@@ -11,7 +11,6 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // owner or agent who receives the notification
     @ManyToOne(optional = false)
     @JoinColumn(name = "recipient_id")
     private User recipient;
@@ -23,7 +22,6 @@ public class Notification {
     @Column(nullable = false, length = 500)
     private String message;
 
-    // optional: the contract this notification is about
     @ManyToOne
     @JoinColumn(name = "contract_id")
     private RentalContract contract;

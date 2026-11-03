@@ -2,10 +2,6 @@ package warehouse.util;
 
 import warehouse.model.User;
 
-/**
- * Keeps the currently logged-in user so every screen can access it
- * (e.g. an owner sees only their own warehouses).
- */
 public final class UserSession {
 
     private static User currentUser;

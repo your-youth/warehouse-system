@@ -7,10 +7,6 @@ import org.hibernate.Session;
 
 import java.util.Optional;
 
-/**
- * Handles user authentication.
- * "FROM User" also returns subclasses (Owner, Agent) when User uses inheritance.
- */
 public class AuthService {
 
     public Optional<User> login(String username, String password) {

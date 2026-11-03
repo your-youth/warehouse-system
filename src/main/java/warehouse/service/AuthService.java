@@ -2,6 +2,7 @@ package warehouse.service;
 
 import warehouse.model.User;
 import warehouse.util.HibernateUtil;
+import warehouse.util.PasswordUtil;
 import org.hibernate.Session;
 
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class AuthService {
                             "FROM User u WHERE u.username = :username", User.class)
                     .setParameter("username", username)
                     .uniqueResultOptional()
-                    .filter(u -> u.getPassword().equals(password));
+                    .filter(u -> PasswordUtil.matches(password, u.getPassword()));
         }
     }
 }

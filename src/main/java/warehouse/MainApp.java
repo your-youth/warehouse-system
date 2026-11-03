@@ -6,9 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * Application entry point: opens the login screen.
- */
 public class MainApp extends Application {
 
     @Override

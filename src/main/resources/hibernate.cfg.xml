@@ -9,11 +9,12 @@
         <property name="hibernate.connection.username">postgres</property>
         <property name="hibernate.connection.password">postgres</property>
 
-        <!-- update: Hibernate сам создаёт таблицы по классам -->
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.show_sql">true</property>
 
-        <!-- список классов-таблиц: добавляй сюда каждый новый @Entity -->
         <mapping class="warehouse.model.User"/>
+        <mapping class="warehouse.model.Owner"/>
+        <mapping class="warehouse.model.Agent"/>
+        <mapping class="warehouse.model.Warehouse"/>
     </session-factory>
 </hibernate-configuration>

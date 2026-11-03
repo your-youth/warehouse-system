@@ -1,0 +1,46 @@
+.root-pane {
+    -fx-background-color: #f4f6f8;
+    -fx-font-family: "Segoe UI", "Helvetica", sans-serif;
+}
+
+.title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2d3d;
+}
+
+.subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7785;
+    -fx-padding: 0 0 10 0;
+}
+
+.text-field, .password-field {
+    -fx-pref-height: 36px;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #cfd6de;
+    -fx-background-color: white;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #2f6fed;
+}
+
+.error {
+    -fx-text-fill: #c62828;
+    -fx-font-size: 12px;
+}
+
+.login-button {
+    -fx-pref-height: 38px;
+    -fx-background-color: #2f6fed;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #2559c4;
+}

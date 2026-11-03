@@ -16,5 +16,8 @@
         <mapping class="warehouse.model.Owner"/>
         <mapping class="warehouse.model.Agent"/>
         <mapping class="warehouse.model.Warehouse"/>
+        <mapping class="warehouse.model.Tenant"/>
+        <mapping class="warehouse.model.RentalContract"/>
+        <mapping class="warehouse.model.Notification"/>
     </session-factory>
 </hibernate-configuration>

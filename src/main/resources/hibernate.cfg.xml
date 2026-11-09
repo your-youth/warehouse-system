@@ -16,5 +16,6 @@
         <mapping class="warehouse.model.Owner"/>
         <mapping class="warehouse.model.Agent"/>
         <mapping class="warehouse.model.Warehouse"/>
+        <mapping class="warehouse.model.Rating"/>
     </session-factory>
 </hibernate-configuration>

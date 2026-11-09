@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="warehouse.controller.AdminController"
+            prefWidth="900" prefHeight="550">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+            <Label text="Administrator">
+                <font><Font name="System Bold" size="20"/></font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Logout" onAction="#onLogout"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+
+
+            <Tab text="Owners">
+                <HBox spacing="16">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+
+                    <TableView fx:id="ownersTable" HBox.hgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="ownerUsernameCol" text="Username" prefWidth="110"/>
+                            <TableColumn fx:id="ownerNameCol" text="Name" prefWidth="150"/>
+                            <TableColumn fx:id="ownerPhoneCol" text="Phone" prefWidth="110"/>
+                            <TableColumn fx:id="ownerEmailCol" text="Email" prefWidth="160"/>
+                        </columns>
+                    </TableView>
+
+                    <VBox spacing="8" prefWidth="240">
+                        <Label text="New owner">
+                            <font><Font name="System Bold" size="14"/></font>
+                        </Label>
+                        <TextField fx:id="ownerUsernameField" promptText="Username"/>
+                        <PasswordField fx:id="ownerPasswordField" promptText="Password"/>
+                        <TextField fx:id="ownerFirstNameField" promptText="First name"/>
+                        <TextField fx:id="ownerLastNameField" promptText="Last name"/>
+                        <TextField fx:id="ownerPhoneField" promptText="Phone"/>
+                        <TextField fx:id="ownerEmailField" promptText="Email"/>
+                        <Button text="Create owner" maxWidth="Infinity" onAction="#onCreateOwner"/>
+                        <Label fx:id="ownerMessageLabel" wrapText="true"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+
+
+            <Tab text="Warehouse agents">
+                <HBox spacing="16">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+
+                    <TableView fx:id="agentsTable" HBox.hgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="agentUsernameCol" text="Username" prefWidth="110"/>
+                            <TableColumn fx:id="agentNameCol" text="Name" prefWidth="150"/>
+                            <TableColumn fx:id="agentPhoneCol" text="Phone" prefWidth="110"/>
+                            <TableColumn fx:id="agentEmailCol" text="Email" prefWidth="150"/>
+                            <TableColumn fx:id="agentFeeCol" text="Fee %" prefWidth="60"/>
+                        </columns>
+                    </TableView>
+
+                    <VBox spacing="8" prefWidth="240">
+                        <Label text="New agent">
+                            <font><Font name="System Bold" size="14"/></font>
+                        </Label>
+                        <TextField fx:id="agentUsernameField" promptText="Username"/>
+                        <PasswordField fx:id="agentPasswordField" promptText="Password"/>
+                        <TextField fx:id="agentFirstNameField" promptText="First name"/>
+                        <TextField fx:id="agentLastNameField" promptText="Last name"/>
+                        <TextField fx:id="agentPhoneField" promptText="Phone"/>
+                        <TextField fx:id="agentEmailField" promptText="Email"/>
+                        <TextField fx:id="agentFeeField" promptText="Fee, % (e.g. 5)"/>
+                        <Button text="Create agent" maxWidth="Infinity" onAction="#onCreateAgent"/>
+                        <Label fx:id="agentMessageLabel" wrapText="true"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>

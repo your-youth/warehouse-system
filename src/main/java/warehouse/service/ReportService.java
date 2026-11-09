@@ -2,7 +2,10 @@ package warehouse.service;
 
 import warehouse.dao.RentalContractDao;
 import warehouse.dao.WarehouseDao;
+import warehouse.model.Agent;
+import warehouse.model.Owner;
 import warehouse.model.RentalContract;
+import warehouse.model.User;
 import warehouse.model.Warehouse;
 import warehouse.model.WarehouseStatus;
 
@@ -32,24 +35,32 @@ public class ReportService {
     private final RentalContractDao contractDao = new RentalContractDao();
     private final WarehouseDao warehouseDao = new WarehouseDao();
 
-    public List<RentalContract> getContracts(LocalDate from, LocalDate to) {
-        return contractDao.findStartedBetween(from, to);
+    public List<RentalContract> getContracts(LocalDate from, LocalDate to, User viewer) {
+        List<RentalContract> contracts = contractDao.findStartedBetween(from, to);
+        if (viewer instanceof Owner owner) {
+            contracts.removeIf(c -> !c.getWarehouse().getOwner().getId().equals(owner.getId()));
+        } else if (viewer instanceof Agent agent) {
+            contracts.removeIf(c -> !c.getAgent().getId().equals(agent.getId()));
+        }
+        return contracts;
     }
 
-    public Summary getSummary(LocalDate from, LocalDate to) {
-        List<RentalContract> contracts = getContracts(from, to);
+    public Summary getSummary(LocalDate from, LocalDate to, User viewer) {
+        List<RentalContract> contracts = getContracts(from, to, viewer);
         double revenue = contracts.stream().mapToDouble(RentalContract::getTotalPrice).sum();
         double commission = contracts.stream().mapToDouble(RentalContract::getAgentCommission).sum();
 
-        List<Warehouse> warehouses = warehouseDao.findAll();
+        List<Warehouse> warehouses = viewer instanceof Owner owner
+                ? warehouseDao.findByOwner(owner)
+                : warehouseDao.findAll();
         long rented = warehouses.stream().filter(w -> w.getStatus() == WarehouseStatus.RENTED).count();
 
         return new Summary(contracts.size(), revenue, commission, warehouses.size(), rented);
     }
 
-    public List<AgentReport> getAgentReport(LocalDate from, LocalDate to) {
+    public List<AgentReport> getAgentReport(LocalDate from, LocalDate to, User viewer) {
         Map<Long, List<RentalContract>> byAgent = new LinkedHashMap<>();
-        for (RentalContract c : getContracts(from, to)) {
+        for (RentalContract c : getContracts(from, to, viewer)) {
             byAgent.computeIfAbsent(c.getAgent().getId(), id -> new ArrayList<>()).add(c);
         }
 
@@ -65,9 +76,9 @@ public class ReportService {
         return result;
     }
 
-    public List<WarehouseReport> getWarehouseReport(LocalDate from, LocalDate to) {
+    public List<WarehouseReport> getWarehouseReport(LocalDate from, LocalDate to, User viewer) {
         Map<Long, List<RentalContract>> byWarehouse = new LinkedHashMap<>();
-        for (RentalContract c : getContracts(from, to)) {
+        for (RentalContract c : getContracts(from, to, viewer)) {
             byWarehouse.computeIfAbsent(c.getWarehouse().getId(), id -> new ArrayList<>()).add(c);
         }
 

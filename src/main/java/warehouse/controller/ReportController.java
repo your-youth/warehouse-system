@@ -7,10 +7,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import warehouse.model.RentalContract;
+import warehouse.model.User;
 import warehouse.service.ReportService;
 import warehouse.service.ReportService.AgentReport;
 import warehouse.service.ReportService.Summary;
 import warehouse.service.ReportService.WarehouseReport;
+import warehouse.util.UserSession;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -97,8 +99,9 @@ public class ReportController {
             return;
         }
 
+        User viewer = UserSession.getCurrentUser();
         try {
-            Summary summary = reportService.getSummary(from, to);
+            Summary summary = reportService.getSummary(from, to, viewer);
             contractsLabel.setText(String.valueOf(summary.contracts()));
             revenueLabel.setText(money(summary.revenue()));
             commissionLabel.setText(money(summary.commission()));
@@ -106,9 +109,9 @@ public class ReportController {
             occupancyDetailsLabel.setText("Rented now: " + summary.rentedWarehouses()
                     + " of " + summary.totalWarehouses());
 
-            agentTable.getItems().setAll(reportService.getAgentReport(from, to));
-            warehouseTable.getItems().setAll(reportService.getWarehouseReport(from, to));
-            contractTable.getItems().setAll(reportService.getContracts(from, to));
+            agentTable.getItems().setAll(reportService.getAgentReport(from, to, viewer));
+            warehouseTable.getItems().setAll(reportService.getWarehouseReport(from, to, viewer));
+            contractTable.getItems().setAll(reportService.getContracts(from, to, viewer));
         } catch (RuntimeException e) {
             errorLabel.setText("Could not load the report.");
             e.printStackTrace();

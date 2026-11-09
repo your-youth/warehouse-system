@@ -14,6 +14,7 @@ import warehouse.dao.UserDao;
 import warehouse.model.Agent;
 import warehouse.model.Owner;
 import warehouse.service.UserService;
+import warehouse.util.UserSession;
 
 public class AdminController {
 
@@ -30,6 +31,7 @@ public class AdminController {
     @FXML private TextField ownerPhoneField;
     @FXML private TextField ownerEmailField;
     @FXML private Label ownerMessageLabel;
+
 
     @FXML private TableView<Agent> agentsTable;
     @FXML private TableColumn<Agent, String> agentUsernameCol;
@@ -53,6 +55,7 @@ public class AdminController {
 
     @FXML
     private void initialize() {
+        // имя в кавычках = имя геттера без "get": "username" → getUsername()
         ownerUsernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
         ownerNameCol.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         ownerPhoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
@@ -79,7 +82,7 @@ public class AdminController {
                     ownerLastNameField, ownerPhoneField, ownerEmailField);
             refreshTables();
         } catch (IllegalArgumentException e) {
-            showError(ownerMessageLabel, e.getMessage());
+            showError(ownerMessageLabel, e.getMessage());   // ошибка из UserService
         }
     }
 
@@ -103,6 +106,7 @@ public class AdminController {
     @FXML
     private void onLogout() {
         try {
+            UserSession.logout();
             Parent root = FXMLLoader.load(getClass().getResource("/warehouse/view/login.fxml"));
             Stage stage = (Stage) ownersTable.getScene().getWindow();
             stage.setScene(new Scene(root));

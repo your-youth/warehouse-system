@@ -9,7 +9,6 @@ public final class DataInitializer {
     private DataInitializer() {
     }
 
-    // при первом запуске создаёт администратора admin / admin
     public static void ensureAdminExists() {
         UserDao userDao = new UserDao();
         if (userDao.findByUsername("admin").isEmpty()) {

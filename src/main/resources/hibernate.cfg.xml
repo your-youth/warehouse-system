@@ -19,5 +19,6 @@
         <mapping class="warehouse.model.Tenant"/>
         <mapping class="warehouse.model.RentalContract"/>
         <mapping class="warehouse.model.Notification"/>
+        <mapping class="warehouse.model.Rating"/>
     </session-factory>
 </hibernate-configuration>

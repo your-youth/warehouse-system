@@ -17,9 +17,8 @@ public class Agent extends User {
     private String phone;
     private String email;
 
-    private double fee;   // комиссия в %
+    private double fee;
 
-    // много агентов : много складов (главная сторона — в Warehouse)
     @ManyToMany(mappedBy = "agents")
     private Set<Warehouse> warehouses = new HashSet<>();
 

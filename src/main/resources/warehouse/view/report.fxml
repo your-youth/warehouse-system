@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="warehouse.controller.ReportController"
+      spacing="12" prefWidth="1000" prefHeight="600"
+      stylesheets="@app.css" styleClass="root-pane">
+
+    <padding>
+        <Insets top="14" right="16" bottom="14" left="16"/>
+    </padding>
+
+    <HBox spacing="10" alignment="BOTTOM_LEFT">
+        <VBox spacing="4">
+            <Label text="Period" styleClass="card-label"/>
+            <ComboBox fx:id="periodCombo" prefWidth="150"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="From" styleClass="card-label"/>
+            <DatePicker fx:id="fromPicker" prefWidth="140"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="To" styleClass="card-label"/>
+            <DatePicker fx:id="toPicker" prefWidth="140"/>
+        </VBox>
+        <Button text="Show report" styleClass="primary-button" onAction="#handleShow"/>
+        <Label fx:id="errorLabel" styleClass="error"/>
+    </HBox>
+
+    <HBox spacing="12">
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label fx:id="contractsLabel" styleClass="card-value" text="0"/>
+            <Label text="Contracts" styleClass="card-label"/>
+        </VBox>
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label fx:id="revenueLabel" styleClass="card-value" text="0.00"/>
+            <Label text="Revenue" styleClass="card-label"/>
+        </VBox>
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label fx:id="commissionLabel" styleClass="card-value" text="0.00"/>
+            <Label text="Agent commission" styleClass="card-label"/>
+        </VBox>
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label fx:id="occupancyLabel" styleClass="card-value" text="0%"/>
+            <Label fx:id="occupancyDetailsLabel" text="Warehouses rented now" styleClass="card-label"/>
+        </VBox>
+    </HBox>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="By agent">
+            <TableView fx:id="agentTable">
+                <columns>
+                    <TableColumn fx:id="aNameColumn" text="Agent" prefWidth="300"/>
+                    <TableColumn fx:id="aContractsColumn" text="Contracts" prefWidth="120"/>
+                    <TableColumn fx:id="aRevenueColumn" text="Revenue" prefWidth="180"/>
+                    <TableColumn fx:id="aCommissionColumn" text="Commission" prefWidth="180"/>
+                </columns>
+                <placeholder><Label text="No contracts in this period."/></placeholder>
+            </TableView>
+        </Tab>
+        <Tab text="By warehouse">
+            <TableView fx:id="warehouseTable">
+                <columns>
+                    <TableColumn fx:id="wAddressColumn" text="Warehouse" prefWidth="320"/>
+                    <TableColumn fx:id="wOwnerColumn" text="Owner" prefWidth="200"/>
+                    <TableColumn fx:id="wContractsColumn" text="Contracts" prefWidth="110"/>
+                    <TableColumn fx:id="wRevenueColumn" text="Revenue" prefWidth="160"/>
+                </columns>
+                <placeholder><Label text="No contracts in this period."/></placeholder>
+            </TableView>
+        </Tab>
+        <Tab text="All contracts">
+            <TableView fx:id="contractTable">
+                <columns>
+                    <TableColumn fx:id="cWarehouseColumn" text="Warehouse" prefWidth="220"/>
+                    <TableColumn fx:id="cTenantColumn" text="Tenant" prefWidth="150"/>
+                    <TableColumn fx:id="cAgentColumn" text="Agent" prefWidth="150"/>
+                    <TableColumn fx:id="cStartColumn" text="Start" prefWidth="95"/>
+                    <TableColumn fx:id="cEndColumn" text="End" prefWidth="95"/>
+                    <TableColumn fx:id="cTotalColumn" text="Total" prefWidth="110"/>
+                    <TableColumn fx:id="cStatusColumn" text="Status" prefWidth="95"/>
+                </columns>
+                <placeholder><Label text="No contracts in this period."/></placeholder>
+            </TableView>
+        </Tab>
+    </TabPane>
+</VBox>

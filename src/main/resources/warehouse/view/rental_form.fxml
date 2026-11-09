@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="warehouse.controller.RentalFormController"
+      spacing="12" prefWidth="480"
+      stylesheets="@app.css" styleClass="root-pane">
+
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <Label text="Rental form" styleClass="title"/>
+
+    <VBox styleClass="card" spacing="2">
+        <Label fx:id="warehouseLabel" styleClass="section-title" wrapText="true"/>
+        <Label fx:id="warehouseDetailsLabel" styleClass="subtitle" wrapText="true"/>
+    </VBox>
+
+    <Label text="Tenant" styleClass="section-title"/>
+    <HBox spacing="8">
+        <TextField fx:id="tenantSearchField" promptText="Search by name, company or phone" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <ComboBox fx:id="tenantCombo" promptText="Choose an existing tenant" maxWidth="Infinity"/>
+    <CheckBox fx:id="newTenantCheck" text="New tenant" onAction="#handleNewTenantToggle"/>
+
+    <GridPane fx:id="newTenantGrid" hgap="10" vgap="8" disable="true">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
+        <TextField fx:id="firstNameField" promptText="First name *" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="lastNameField" promptText="Last name *" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <TextField fx:id="phoneField" promptText="Phone *" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="emailField" promptText="Email" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="companyField" promptText="Company" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                   GridPane.columnSpan="2"/>
+    </GridPane>
+
+    <Separator/>
+
+    <Label text="Rental period" styleClass="section-title"/>
+    <HBox spacing="10">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Start date" styleClass="card-label"/>
+            <DatePicker fx:id="startDatePicker" maxWidth="Infinity"/>
+        </VBox>
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="End date" styleClass="card-label"/>
+            <DatePicker fx:id="endDatePicker" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
+
+    <VBox styleClass="card" spacing="2">
+        <Label fx:id="totalLabel" styleClass="card-value"/>
+        <Label fx:id="totalDetailsLabel" styleClass="card-label"/>
+    </VBox>
+
+    <Label fx:id="errorLabel" styleClass="error" wrapText="true" visible="false" managed="false"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Cancel" cancelButton="true" onAction="#handleCancel"/>
+        <Button text="Create contract" defaultButton="true" styleClass="primary-button" onAction="#handleSave"/>
+    </HBox>
+</VBox>

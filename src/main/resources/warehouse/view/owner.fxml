@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="warehouse.controller.OwnerController"
+            prefWidth="1050" prefHeight="620">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+            <Label text="Owner">
+                <font><Font name="System Bold" size="20"/></font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="welcomeLabel"/>
+            <Button text="Logout" onAction="#onLogout"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+
+            <Tab text="My warehouses">
+                <HBox spacing="16">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <TableView fx:id="warehousesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="addressCol" text="Address" prefWidth="160"/>
+                                <TableColumn fx:id="areaCol" text="Area m²" prefWidth="70"/>
+                                <TableColumn fx:id="climateCol" text="Climate" prefWidth="90"/>
+                                <TableColumn fx:id="categoryCol" text="Cat." prefWidth="45"/>
+                                <TableColumn fx:id="statusCol" text="Status" prefWidth="70"/>
+                                <TableColumn fx:id="priceCol" text="Price/month" prefWidth="85"/>
+                                <TableColumn fx:id="agentsCol" text="Agents" prefWidth="160"/>
+                            </columns>
+                        </TableView>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="Agent:"/>
+                            <ComboBox fx:id="agentCombo" prefWidth="200"/>
+                            <Button text="Assign to selected" onAction="#onAssignAgent"/>
+                            <Button text="Remove from selected" onAction="#onRemoveAgent"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="8" prefWidth="250">
+                        <Label text="Warehouse">
+                            <font><Font name="System Bold" size="14"/></font>
+                        </Label>
+                        <TextField fx:id="addressField" promptText="Address"/>
+                        <TextField fx:id="areaField" promptText="Area, m²"/>
+                        <TextField fx:id="heightField" promptText="Height, m"/>
+                        <ComboBox fx:id="climateCombo" promptText="Climate" maxWidth="Infinity"/>
+                        <TextField fx:id="goodsTypeField" promptText="Type of stored goods"/>
+                        <ComboBox fx:id="categoryCombo" promptText="Category" maxWidth="Infinity"/>
+                        <TextField fx:id="priceField" promptText="Price per month"/>
+                        <Button text="Add new" maxWidth="Infinity" onAction="#onAddWarehouse"/>
+                        <Button text="Save changes to selected" maxWidth="Infinity" onAction="#onUpdateWarehouse"/>
+                        <Button text="Clear form" maxWidth="Infinity" onAction="#onClearForm"/>
+                        <Label fx:id="warehouseMessageLabel" wrapText="true"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <Tab text="Rate agents">
+                <HBox spacing="16">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+
+                    <TableView fx:id="agentsTable" HBox.hgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="agentNameCol" text="Agent" prefWidth="180"/>
+                            <TableColumn fx:id="agentFeeCol" text="Fee %" prefWidth="70"/>
+                            <TableColumn fx:id="agentRatingCol" text="Avg rating" prefWidth="90"/>
+                        </columns>
+                    </TableView>
+
+                    <VBox spacing="8" prefWidth="250">
+                        <Label text="Rate an agent">
+                            <font><Font name="System Bold" size="14"/></font>
+                        </Label>
+                        <ComboBox fx:id="rateAgentCombo" promptText="Agent" maxWidth="Infinity"/>
+                        <Label text="Score (1–5):"/>
+                        <Spinner fx:id="scoreSpinner" min="1" max="5" initialValue="5"/>
+                        <TextArea fx:id="commentArea" promptText="Comment" prefRowCount="4" wrapText="true"/>
+                        <Button text="Submit rating" maxWidth="Infinity" onAction="#onRateAgent"/>
+                        <Label fx:id="ratingMessageLabel" wrapText="true"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <Tab text="Reports">
+                <fx:include source="report.fxml"/>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>

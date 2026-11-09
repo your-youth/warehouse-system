@@ -1,0 +1,124 @@
+<mxfile host="app.diagrams.net">
+<diagram name="use_case_diagram">
+<mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" page="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="system" value="Warehouse Management System" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;verticalAlign=top;fontStyle=1;fontSize=14;spacingTop=8;" vertex="1" parent="1">
+<mxGeometry x="380.0" y="40.0" width="760.0" height="940.0" as="geometry"/>
+</mxCell>
+<mxCell id="e1" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="admin" target="login">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e2" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="login">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e3" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="login">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e4" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="admin" target="createOwner">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e5" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="admin" target="createAgent">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e6" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="admin" target="viewUsers">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e7" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="manageWh">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e8" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="assignAgent">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e9" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="rateAgent">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e10" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="notifications">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e11" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="owner" target="reports">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e12" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="freeWh">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e13" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="rent">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e14" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="contracts">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e15" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="cancel">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e16" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="notifications">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e17" value="" style="endArrow=none;html=1;fontSize=13;fontStyle=1;" edge="1" parent="1" source="agent" target="reports">
+<mxGeometry x="0.75" relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e18" value="«include»" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=11;" edge="1" parent="1" source="rent" target="tenant">
+<mxGeometry relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="e19" value="«include»" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=11;" edge="1" parent="1" source="rent" target="notifyOwner">
+<mxGeometry relative="1" as="geometry"></mxGeometry>
+</mxCell>
+<mxCell id="admin" value="Administrator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;" vertex="1" parent="1">
+<mxGeometry x="100.0" y="200.0" width="40.0" height="80.0" as="geometry"/>
+</mxCell>
+<mxCell id="owner" value="Warehouse Owner" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;" vertex="1" parent="1">
+<mxGeometry x="100.0" y="620.0" width="40.0" height="80.0" as="geometry"/>
+</mxCell>
+<mxCell id="agent" value="Agent" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;" vertex="1" parent="1">
+<mxGeometry x="1380.0" y="480.0" width="40.0" height="80.0" as="geometry"/>
+</mxCell>
+<mxCell id="createOwner" value="Create owner" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="135.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="createAgent" value="Create agent" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="215.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="viewUsers" value="View owners and agents" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="295.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="manageWh" value="Manage warehouses" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="555.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="assignAgent" value="Assign agent to warehouse" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="635.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="rateAgent" value="Rate agent" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="420.0" y="715.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="tenant" value="Select or register tenant" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="660.0" y="205.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="notifyOwner" value="Notify owner" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="660.0" y="295.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="login" value="Log in" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="660.0" y="420.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="notifications" value="View notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="660.0" y="835.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="reports" value="View periodic reports" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="660.0" y="915.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="freeWh" value="View free warehouses" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="900.0" y="135.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="rent" value="Rent warehouse" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="900.0" y="255.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="contracts" value="View my contracts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="900.0" y="535.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+<mxCell id="cancel" value="Cancel contract" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+<mxGeometry x="900.0" y="615.0" width="200.0" height="50.0" as="geometry"/>
+</mxCell>
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

@@ -17,13 +17,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
-/**
- * Controller for the login screen.
- * Checks the credentials and opens the dashboard that matches the user's role.
- */
 public class LoginController {
 
-    // Adjust this path to the project's FXML folder.
     private static final String VIEW_PATH = "/warehouse/view/";
 
     @FXML private TextField usernameField;

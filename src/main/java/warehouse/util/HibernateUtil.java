@@ -1,5 +1,7 @@
 package warehouse.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -7,11 +9,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public final class HibernateUtil {
 
-    private static final String LOCAL_SETTINGS = "db.properties";
+    private static final Logger log = LogManager.getLogger(HibernateUtil.class);
+    private static final String LOCAL_DB_FILE = "db.properties";
 
     private static SessionFactory sessionFactory;
 
@@ -20,34 +24,23 @@ public final class HibernateUtil {
 
     public static synchronized SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
-            Configuration configuration = new Configuration().configure();
-            applyLocalSettings(configuration);
-            sessionFactory = configuration.buildSessionFactory();
+            Configuration cfg = new Configuration().configure();
+
+            Properties local = loadLocalSettings();
+            if (local.getProperty("db.url") != null) {
+                cfg.setProperty("hibernate.connection.url", local.getProperty("db.url"));
+            }
+            if (local.getProperty("db.username") != null) {
+                cfg.setProperty("hibernate.connection.username", local.getProperty("db.username"));
+            }
+            if (local.getProperty("db.password") != null) {
+                cfg.setProperty("hibernate.connection.password", local.getProperty("db.password"));
+            }
+
+            sessionFactory = cfg.buildSessionFactory();
+            log.info("Connected to database");
         }
         return sessionFactory;
-    }
-
-    private static void applyLocalSettings(Configuration configuration) {
-        Path file = Path.of(LOCAL_SETTINGS);
-        if (!Files.exists(file)) {
-            return;
-        }
-        Properties settings = new Properties();
-        try (Reader reader = Files.newBufferedReader(file)) {
-            settings.load(reader);
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read " + file.toAbsolutePath(), e);
-        }
-        setIfPresent(configuration, settings, "db.url", "hibernate.connection.url");
-        setIfPresent(configuration, settings, "db.username", "hibernate.connection.username");
-        setIfPresent(configuration, settings, "db.password", "hibernate.connection.password");
-    }
-
-    private static void setIfPresent(Configuration configuration, Properties settings, String key, String property) {
-        String value = settings.getProperty(key);
-        if (value != null && !value.isBlank()) {
-            configuration.setProperty(property, value.trim());
-        }
     }
 
     public static synchronized void shutdown() {
@@ -55,5 +48,21 @@ public final class HibernateUtil {
             sessionFactory.close();
             sessionFactory = null;
         }
+    }
+
+    private static Properties loadLocalSettings() {
+        Properties props = new Properties();
+        Path path = Paths.get(LOCAL_DB_FILE);
+        if (Files.exists(path)) {
+            try (Reader reader = Files.newBufferedReader(path)) {
+                props.load(reader);
+                log.info("Using local database settings from {}", path.toAbsolutePath());
+            } catch (IOException e) {
+                throw new IllegalStateException("Cannot read " + LOCAL_DB_FILE, e);
+            }
+        } else {
+            log.info("{} not found, using settings from hibernate.cfg.xml", LOCAL_DB_FILE);
+        }
+        return props;
     }
 }

@@ -14,17 +14,20 @@ import warehouse.dao.AgentDao;
 import warehouse.dao.RatingDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.*;
+import warehouse.service.NotificationService;
 import warehouse.service.RatingService;
 import warehouse.service.WarehouseService;
 import warehouse.util.UserSession;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class OwnerController {
 
-    @FXML private Label welcomeLabel;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
+    @FXML private Label welcomeLabel;
 
     @FXML private TableView<Warehouse> warehousesTable;
     @FXML private TableColumn<Warehouse, String> addressCol;
@@ -45,7 +48,6 @@ public class OwnerController {
     @FXML private TextField priceField;
     @FXML private Label warehouseMessageLabel;
 
-
     @FXML private TableView<Agent> agentsTable;
     @FXML private TableColumn<Agent, String> agentNameCol;
     @FXML private TableColumn<Agent, Double> agentFeeCol;
@@ -55,8 +57,16 @@ public class OwnerController {
     @FXML private TextArea commentArea;
     @FXML private Label ratingMessageLabel;
 
+    @FXML private Tab notificationsTab;
+    @FXML private TableView<Notification> notificationsTable;
+    @FXML private TableColumn<Notification, String> notifStatusCol;
+    @FXML private TableColumn<Notification, String> notifDateCol;
+    @FXML private TableColumn<Notification, String> notifTypeCol;
+    @FXML private TableColumn<Notification, String> notifMessageCol;
+
     private final WarehouseService warehouseService = new WarehouseService(new WarehouseDao());
     private final RatingService ratingService = new RatingService(new RatingDao());
+    private final NotificationService notificationService = new NotificationService();
     private final AgentDao agentDao = new AgentDao();
 
     private Owner owner;
@@ -65,7 +75,6 @@ public class OwnerController {
     private void initialize() {
         owner = (Owner) UserSession.getCurrentUser();
         welcomeLabel.setText("Welcome, " + owner.getFullName());
-
 
         addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
         areaCol.setCellValueFactory(new PropertyValueFactory<>("area"));
@@ -83,19 +92,34 @@ public class OwnerController {
         agentRatingCol.setCellValueFactory(cell -> new SimpleStringProperty(
                 String.format("%.1f", ratingService.getAverageRating(cell.getValue()))));
 
+        notifStatusCol.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().isRead() ? "" : "NEW"));
+        notifDateCol.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getCreatedAt().format(DATE_FORMAT)));
+        notifTypeCol.setCellValueFactory(cell -> new SimpleStringProperty(
+                typeName(cell.getValue().getType())));
+        notifMessageCol.setCellValueFactory(new PropertyValueFactory<>("message"));
+        notificationsTable.setRowFactory(table -> new TableRow<>() {
+            @Override
+            protected void updateItem(Notification n, boolean empty) {
+                super.updateItem(n, empty);
+                setStyle(n != null && !n.isRead() ? "-fx-font-weight: bold;" : "");
+            }
+        });
+
         climateCombo.setItems(FXCollections.observableArrayList(ClimateCondition.values()));
         categoryCombo.setItems(FXCollections.observableArrayList(WarehouseCategory.values()));
         agentCombo.setConverter(agentNames());
         rateAgentCombo.setConverter(agentNames());
 
-
         warehousesTable.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, selected) -> fillForm(selected));
 
+        notificationService.checkExpiringContracts();
+
         refresh();
+        refreshNotifications();
     }
-
-
 
     @FXML
     private void onAddWarehouse() {
@@ -177,8 +201,6 @@ public class OwnerController {
         refresh();
     }
 
-
-
     @FXML
     private void onRateAgent() {
         try {
@@ -192,6 +214,17 @@ public class OwnerController {
         }
     }
 
+    @FXML
+    private void onRefreshNotifications() {
+        notificationService.checkExpiringContracts();
+        refreshNotifications();
+    }
+
+    @FXML
+    private void onMarkAllRead() {
+        notificationService.markAllRead(owner);
+        refreshNotifications();
+    }
 
     @FXML
     private void onLogout() {
@@ -206,7 +239,6 @@ public class OwnerController {
         }
     }
 
-
     private void refresh() {
         warehousesTable.setItems(FXCollections.observableArrayList(
                 warehouseService.getWarehousesOf(owner)));
@@ -214,6 +246,24 @@ public class OwnerController {
         agentCombo.setItems(FXCollections.observableArrayList(agents));
         rateAgentCombo.setItems(FXCollections.observableArrayList(agents));
         agentsTable.setItems(FXCollections.observableArrayList(agents));
+    }
+
+    private void refreshNotifications() {
+        notificationsTable.setItems(FXCollections.observableArrayList(
+                notificationService.getFor(owner)));
+        long unread = notificationService.countUnread(owner);
+        notificationsTab.setText(unread > 0 ? "Notifications (" + unread + ")" : "Notifications");
+    }
+
+    private String typeName(NotificationType type) {
+        if (type == null) {
+            return "";
+        }
+        return switch (type) {
+            case NEW_RENTAL_REQUEST -> "New rental request";
+            case WAREHOUSE_RENTED -> "Warehouse rented";
+            case CONTRACT_EXPIRING -> "Contract expiring";
+        };
     }
 
     private void fillForm(Warehouse w) {

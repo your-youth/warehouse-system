@@ -96,6 +96,33 @@
             <Tab text="Reports">
                 <fx:include source="report.fxml"/>
             </Tab>
+
+            <Tab fx:id="notificationsTab" text="Notifications">
+                <VBox spacing="8">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="Notifications">
+                            <font><Font name="System Bold" size="14"/></font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh" onAction="#onRefreshNotifications"/>
+                        <Button text="Mark all as read" onAction="#onMarkAllRead"/>
+                    </HBox>
+
+                    <TableView fx:id="notificationsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="notifStatusCol" text="" prefWidth="50"/>
+                            <TableColumn fx:id="notifDateCol" text="Date" prefWidth="130"/>
+                            <TableColumn fx:id="notifTypeCol" text="Type" prefWidth="150"/>
+                            <TableColumn fx:id="notifMessageCol" text="Message" prefWidth="620"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="No notifications yet"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </Tab>
         </TabPane>
     </center>
 </BorderPane>

@@ -1,11 +1,15 @@
 package warehouse.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.*;
 
 import java.util.List;
 
 public class WarehouseService {
+
+    private static final Logger log = LogManager.getLogger(WarehouseService.class);
 
     private final WarehouseDao warehouseDao;
 
@@ -24,11 +28,13 @@ public class WarehouseService {
         w.setCategory(category);
         w.setPricePerMonth(pricePerMonth);
         warehouseDao.save(w);
+        log.info("Warehouse added: '{}' by owner {}", w.getAddress(), owner.getUsername());
         return w;
     }
 
     public Warehouse updateWarehouse(Warehouse w) {
         validate(w.getAddress(), w.getArea(), w.getPricePerMonth());
+        log.info("Warehouse updated: id={}", w.getId());
         return warehouseDao.update(w);
     }
 
@@ -38,10 +44,12 @@ public class WarehouseService {
 
     public void assignAgent(Warehouse warehouse, Agent agent) {
         warehouseDao.assignAgent(warehouse.getId(), agent.getId());
+        log.info("Agent {} assigned to warehouse id={}", agent.getUsername(), warehouse.getId());
     }
 
     public void removeAgent(Warehouse warehouse, Agent agent) {
         warehouseDao.removeAgent(warehouse.getId(), agent.getId());
+        log.info("Agent {} removed from warehouse id={}", agent.getUsername(), warehouse.getId());
     }
 
     private void validate(String address, double area, double price) {

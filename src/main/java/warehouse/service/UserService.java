@@ -6,11 +6,13 @@ import warehouse.dao.UserDao;
 import warehouse.model.Agent;
 import warehouse.model.Owner;
 import warehouse.util.PasswordUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 public class UserService {
-
+    private static final Logger log = LogManager.getLogger(UserService.class);
     private final UserDao userDao;
     private final OwnerDao ownerDao;
     private final AgentDao agentDao;
@@ -33,6 +35,7 @@ public class UserService {
         owner.setPhone(phone);
         owner.setEmail(email);
         ownerDao.save(owner);
+        log.info("Owner created: {}", owner.getUsername());
         return owner;
     }
 
@@ -51,6 +54,7 @@ public class UserService {
         agent.setPhone(phone);
         agent.setEmail(email);
         agentDao.save(agent);
+        log.info("Agent created: {} (fee {}%)", agent.getUsername(), fee);
         return agent;
     }
 
@@ -76,6 +80,7 @@ public class UserService {
             throw new IllegalArgumentException("Password must be at least 4 characters");
         }
         if (userDao.findByUsername(username.trim()).isPresent()) {
+            log.warn("Attempt to create user with taken username: {}", username);
             throw new IllegalArgumentException("Username '" + username + "' is already taken");
         }
     }
@@ -86,7 +91,7 @@ public class UserService {
         }
     }
 
-    // редактирование профиля владельца
+
     public Owner updateOwnerProfile(Owner owner, String firstName, String lastName,
                                     String phone, String email) {
         if (owner == null) {
@@ -98,6 +103,7 @@ public class UserService {
         owner.setLastName(lastName.trim());
         owner.setPhone(phone);
         owner.setEmail(email);
+        log.info("Owner profile updated: {}", owner.getUsername());
         return ownerDao.update(owner);
     }
 
@@ -116,6 +122,7 @@ public class UserService {
         agent.setPhone(phone);
         agent.setEmail(email);
         agent.setFee(fee);
+        log.info("Agent profile updated: {} (fee {}%)", agent.getUsername(), fee);
         return agentDao.update(agent);
     }
 }

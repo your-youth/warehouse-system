@@ -40,3 +40,6 @@ build/
 
 ### Local database settings ###
 db.properties
+
+### Logs ###
+logs/

@@ -47,17 +47,18 @@ public abstract class GenericDao<T> {
     }
 
     protected <R> R inTransaction(Function<Session, R> work) {
-        Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            R result = work.apply(session);
-            tx.commit();
-            return result;
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
+            Transaction tx = session.beginTransaction();
+            try {
+                R result = work.apply(session);
+                tx.commit();
+                return result;
+            } catch (RuntimeException e) {
+                if (tx.isActive()) {
+                    tx.rollback();
+                }
+                throw e;
             }
-            throw e;
         }
     }
 }

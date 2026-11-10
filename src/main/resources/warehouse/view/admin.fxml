@@ -86,6 +86,10 @@
                     </VBox>
                 </HBox>
             </Tab>
+
+            <Tab text="Reports">
+                <fx:include source="report.fxml"/>
+            </Tab>
         </TabPane>
     </center>
 </BorderPane>

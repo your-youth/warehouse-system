@@ -9,6 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import warehouse.dao.RentalContractDao;
+import warehouse.dao.TenantDao;
+import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.RentalContract;
 import warehouse.model.Tenant;
@@ -36,7 +39,8 @@ public class RentalFormController {
     @FXML private Label totalDetailsLabel;
     @FXML private Label errorLabel;
 
-    private final RentalService rentalService = new RentalService();
+    private final RentalService rentalService =
+            new RentalService(new RentalContractDao(), new TenantDao(), new WarehouseDao());
     private Warehouse warehouse;
     private Agent agent;
 
@@ -92,12 +96,13 @@ public class RentalFormController {
         }
 
         try {
-            RentalContract contract = rentalService.rent(warehouse, tenant, agent,
+            RentalContract contract = rentalService.createRequest(warehouse, tenant, agent,
                     startDatePicker.getValue(), endDatePicker.getValue());
 
             Alert done = new Alert(Alert.AlertType.INFORMATION,
-                    "Contract created.\nTotal: " + AgentController.money(contract.getTotalPrice())
-                            + "\nYour commission: " + AgentController.money(contract.getAgentCommission()));
+                    "Rental request created.\nTotal: " + AgentController.money(contract.getTotalPrice())
+                            + "\nYour commission: " + AgentController.money(contract.getAgentCommission())
+                            + "\n\nConfirm it in \"My contracts\" to rent the warehouse.");
             done.setHeaderText(null);
             done.showAndWait();
             close();

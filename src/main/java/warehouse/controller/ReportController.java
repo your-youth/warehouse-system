@@ -6,8 +6,17 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.util.StringConverter;
+import warehouse.dao.OwnerDao;
+import warehouse.dao.RatingDao;
+import warehouse.dao.RentalContractDao;
+import warehouse.dao.WarehouseDao;
+import warehouse.model.Agent;
+import warehouse.model.Owner;
 import warehouse.model.RentalContract;
 import warehouse.model.User;
+import warehouse.model.Warehouse;
+import warehouse.service.RatingService;
 import warehouse.service.ReportService;
 import warehouse.service.ReportService.AgentReport;
 import warehouse.service.ReportService.Summary;
@@ -15,7 +24,10 @@ import warehouse.service.ReportService.WarehouseReport;
 import warehouse.util.UserSession;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static warehouse.controller.AgentController.column;
 import static warehouse.controller.AgentController.money;
@@ -27,6 +39,7 @@ public class ReportController {
     private static final String THIS_QUARTER = "This quarter";
     private static final String THIS_YEAR = "This year";
     private static final String CUSTOM = "Custom";
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     @FXML private ComboBox<String> periodCombo;
     @FXML private DatePicker fromPicker;
@@ -41,6 +54,10 @@ public class ReportController {
 
     @FXML private TableView<AgentReport> agentTable;
     @FXML private TableColumn<AgentReport, String> aNameColumn;
+    @FXML private TableColumn<AgentReport, String> aPhoneColumn;
+    @FXML private TableColumn<AgentReport, String> aEmailColumn;
+    @FXML private TableColumn<AgentReport, String> aFeeColumn;
+    @FXML private TableColumn<AgentReport, String> aRatingColumn;
     @FXML private TableColumn<AgentReport, String> aContractsColumn;
     @FXML private TableColumn<AgentReport, String> aRevenueColumn;
     @FXML private TableColumn<AgentReport, String> aCommissionColumn;
@@ -60,11 +77,34 @@ public class ReportController {
     @FXML private TableColumn<RentalContract, String> cTotalColumn;
     @FXML private TableColumn<RentalContract, String> cStatusColumn;
 
-    private final ReportService reportService = new ReportService();
+    @FXML private TableView<Warehouse> availableTable;
+    @FXML private TableColumn<Warehouse, String> avDateColumn;
+    @FXML private TableColumn<Warehouse, String> avStatusColumn;
+    @FXML private TableColumn<Warehouse, String> avAddressColumn;
+    @FXML private TableColumn<Warehouse, String> avTypeColumn;
+    @FXML private TableColumn<Warehouse, String> avAreaColumn;
+    @FXML private TableColumn<Warehouse, String> avPriceColumn;
+    @FXML private TableColumn<Warehouse, String> avOwnerColumn;
+
+    @FXML private ComboBox<Owner> ownerCombo;
+    @FXML private TableView<Warehouse> ownerWarehouseTable;
+    @FXML private TableColumn<Warehouse, String> owAddressColumn;
+    @FXML private TableColumn<Warehouse, String> owTypeColumn;
+    @FXML private TableColumn<Warehouse, String> owStatusColumn;
+    @FXML private TableColumn<Warehouse, String> owAreaColumn;
+    @FXML private TableColumn<Warehouse, String> owPriceColumn;
+    @FXML private TableColumn<Warehouse, String> owAgentsColumn;
+
+    private final ReportService reportService = new ReportService(
+            new RentalContractDao(), new WarehouseDao(), new OwnerDao(), new RatingService(new RatingDao()));
 
     @FXML
     private void initialize() {
         column(aNameColumn, AgentReport::agentName);
+        column(aPhoneColumn, AgentReport::phone);
+        column(aEmailColumn, AgentReport::email);
+        column(aFeeColumn, AgentReport::fee);
+        column(aRatingColumn, r -> r.rating() == 0 ? "-" : String.format("%.1f", r.rating()));
         column(aContractsColumn, AgentReport::contracts);
         column(aRevenueColumn, r -> money(r.revenue()));
         column(aCommissionColumn, r -> money(r.commission()));
@@ -82,11 +122,48 @@ public class ReportController {
         column(cTotalColumn, c -> money(c.getTotalPrice()));
         column(cStatusColumn, RentalContract::getStatus);
 
+        column(avDateColumn, w -> LocalDate.now().format(DATE));
+        column(avStatusColumn, Warehouse::getStatus);
+        column(avAddressColumn, Warehouse::getAddress);
+        column(avTypeColumn, ReportController::typeOf);
+        column(avAreaColumn, Warehouse::getArea);
+        column(avPriceColumn, w -> money(w.getPricePerMonth()));
+        column(avOwnerColumn, w -> w.getOwner().getFullName());
+
+        column(owAddressColumn, Warehouse::getAddress);
+        column(owTypeColumn, ReportController::typeOf);
+        column(owStatusColumn, Warehouse::getStatus);
+        column(owAreaColumn, Warehouse::getArea);
+        column(owPriceColumn, w -> money(w.getPricePerMonth()));
+        column(owAgentsColumn, w -> w.getAgents().stream().map(Agent::getFullName).collect(Collectors.joining(", ")));
+
+        ownerCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(Owner o) { return o == null ? "" : o.getFullName(); }
+            @Override public Owner fromString(String s) { return null; }
+        });
+        ownerCombo.valueProperty().addListener((obs, old, owner) -> showOwnerWarehouses(owner));
+
         periodCombo.getItems().setAll(THIS_MONTH, LAST_MONTH, THIS_QUARTER, THIS_YEAR, CUSTOM);
         periodCombo.valueProperty().addListener((obs, old, value) -> applyPeriod(value));
         periodCombo.setValue(THIS_MONTH);
 
         handleShow();
+    }
+
+    private void showOwnerWarehouses(Owner owner) {
+        try {
+            ownerWarehouseTable.getItems().setAll(owner == null ? List.of() : reportService.getWarehousesOf(owner));
+        } catch (RuntimeException e) {
+            errorLabel.setText("Could not load the owner's warehouses.");
+            e.printStackTrace();
+        }
+    }
+
+    private static String typeOf(Warehouse w) {
+        String category = w.getCategory() == null ? "-" : "Category " + w.getCategory();
+        String climate = w.getClimateCondition() == null ? "" : ", " + w.getClimateCondition();
+        String goods = w.getGoodsType() == null || w.getGoodsType().isBlank() ? "" : ", " + w.getGoodsType();
+        return category + climate + goods;
     }
 
     @FXML
@@ -112,6 +189,15 @@ public class ReportController {
             agentTable.getItems().setAll(reportService.getAgentReport(from, to, viewer));
             warehouseTable.getItems().setAll(reportService.getWarehouseReport(from, to, viewer));
             contractTable.getItems().setAll(reportService.getContracts(from, to, viewer));
+            availableTable.getItems().setAll(reportService.getAvailableWarehouses(viewer));
+
+            Owner selected = ownerCombo.getValue();
+            ownerCombo.getItems().setAll(reportService.getOwnersFor(viewer));
+            ownerCombo.setDisable(viewer instanceof Owner);
+            ownerCombo.setValue(viewer instanceof Owner ? ownerCombo.getItems().get(0)
+                    : ownerCombo.getItems().stream().filter(o -> selected != null && o.getId().equals(selected.getId()))
+                            .findFirst().orElse(null));
+            showOwnerWarehouses(ownerCombo.getValue());
         } catch (RuntimeException e) {
             errorLabel.setText("Could not load the report.");
             e.printStackTrace();

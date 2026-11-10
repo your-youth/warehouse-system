@@ -62,10 +62,14 @@
         <Tab text="By agent">
             <TableView fx:id="agentTable">
                 <columns>
-                    <TableColumn fx:id="aNameColumn" text="Agent" prefWidth="300"/>
-                    <TableColumn fx:id="aContractsColumn" text="Contracts" prefWidth="120"/>
-                    <TableColumn fx:id="aRevenueColumn" text="Revenue" prefWidth="180"/>
-                    <TableColumn fx:id="aCommissionColumn" text="Commission" prefWidth="180"/>
+                    <TableColumn fx:id="aNameColumn" text="Agent (curator)" prefWidth="160"/>
+                    <TableColumn fx:id="aPhoneColumn" text="Phone" prefWidth="110"/>
+                    <TableColumn fx:id="aEmailColumn" text="Email" prefWidth="160"/>
+                    <TableColumn fx:id="aFeeColumn" text="Fee %" prefWidth="60"/>
+                    <TableColumn fx:id="aRatingColumn" text="Rating" prefWidth="65"/>
+                    <TableColumn fx:id="aContractsColumn" text="Contracts" prefWidth="80"/>
+                    <TableColumn fx:id="aRevenueColumn" text="Revenue" prefWidth="120"/>
+                    <TableColumn fx:id="aCommissionColumn" text="Commission" prefWidth="120"/>
                 </columns>
                 <placeholder><Label text="No contracts in this period."/></placeholder>
             </TableView>
@@ -94,6 +98,40 @@
                 </columns>
                 <placeholder><Label text="No contracts in this period."/></placeholder>
             </TableView>
+        </Tab>
+        <Tab text="Available warehouses">
+            <TableView fx:id="availableTable">
+                <columns>
+                    <TableColumn fx:id="avDateColumn" text="Date" prefWidth="95"/>
+                    <TableColumn fx:id="avStatusColumn" text="Status" prefWidth="80"/>
+                    <TableColumn fx:id="avAddressColumn" text="Address" prefWidth="250"/>
+                    <TableColumn fx:id="avTypeColumn" text="Type" prefWidth="200"/>
+                    <TableColumn fx:id="avAreaColumn" text="Area (m²)" prefWidth="80"/>
+                    <TableColumn fx:id="avPriceColumn" text="Price / month" prefWidth="110"/>
+                    <TableColumn fx:id="avOwnerColumn" text="Owner" prefWidth="150"/>
+                </columns>
+                <placeholder><Label text="No free warehouses."/></placeholder>
+            </TableView>
+        </Tab>
+        <Tab text="Owner's warehouses">
+            <VBox spacing="8">
+                <padding><Insets top="10" right="0" bottom="0" left="0"/></padding>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Owner" styleClass="card-label"/>
+                    <ComboBox fx:id="ownerCombo" prefWidth="260"/>
+                </HBox>
+                <TableView fx:id="ownerWarehouseTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="owAddressColumn" text="Address" prefWidth="250"/>
+                        <TableColumn fx:id="owTypeColumn" text="Type" prefWidth="200"/>
+                        <TableColumn fx:id="owStatusColumn" text="Status" prefWidth="80"/>
+                        <TableColumn fx:id="owAreaColumn" text="Area (m²)" prefWidth="80"/>
+                        <TableColumn fx:id="owPriceColumn" text="Price / month" prefWidth="110"/>
+                        <TableColumn fx:id="owAgentsColumn" text="Agents" prefWidth="220"/>
+                    </columns>
+                    <placeholder><Label text="This owner has no warehouses."/></placeholder>
+                </TableView>
+            </VBox>
         </Tab>
     </TabPane>
 </VBox>

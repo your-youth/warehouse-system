@@ -24,7 +24,7 @@
         <Insets top="20" right="24" bottom="20" left="24"/>
     </padding>
 
-    <Label text="Rental form" styleClass="title"/>
+    <Label text="Rental request" styleClass="title"/>
 
     <VBox styleClass="card" spacing="2">
         <Label fx:id="warehouseLabel" styleClass="section-title" wrapText="true"/>
@@ -75,6 +75,6 @@
     <HBox spacing="10" alignment="CENTER_RIGHT">
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="Cancel" cancelButton="true" onAction="#handleCancel"/>
-        <Button text="Create contract" defaultButton="true" styleClass="primary-button" onAction="#handleSave"/>
+        <Button text="Create rental request" defaultButton="true" styleClass="primary-button" onAction="#handleSave"/>
     </HBox>
 </VBox>

@@ -15,6 +15,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import warehouse.dao.NotificationDao;
+import warehouse.dao.RentalContractDao;
+import warehouse.dao.TenantDao;
+import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.ContractStatus;
 import warehouse.model.Notification;
@@ -58,8 +62,10 @@ public class AgentController {
     @FXML private Tab notificationsTab;
     @FXML private ListView<Notification> notificationList;
 
-    private final RentalService rentalService = new RentalService();
-    private final NotificationService notificationService = new NotificationService();
+    private final RentalService rentalService =
+            new RentalService(new RentalContractDao(), new TenantDao(), new WarehouseDao());
+    private final NotificationService notificationService =
+            new NotificationService(new NotificationDao(), new RentalContractDao());
     private Agent agent;
 
     @FXML
@@ -151,19 +157,49 @@ public class AgentController {
             contractMessage.setText("Please select a contract first.");
             return;
         }
-        if (contract.getStatus() != ContractStatus.ACTIVE) {
-            contractMessage.setText("Only active contracts can be cancelled.");
+        if (contract.getStatus() != ContractStatus.ACTIVE && contract.getStatus() != ContractStatus.PENDING) {
+            contractMessage.setText("Only pending requests and active contracts can be cancelled.");
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Cancel the contract for " + contract.getWarehouse().getAddress() + "?",
+                "Cancel the " + (contract.getStatus() == ContractStatus.PENDING ? "request" : "contract")
+                        + " for " + contract.getWarehouse().getAddress() + "?",
                 ButtonType.YES, ButtonType.NO);
         confirm.setHeaderText(null);
         if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             rentalService.cancel(contract);
             refresh();
         }
+    }
+
+    @FXML
+    private void handleConfirmRequest() {
+        contractMessage.setText("");
+        RentalContract request = contractTable.getSelectionModel().getSelectedItem();
+        if (request == null) {
+            contractMessage.setText("Please select a request first.");
+            return;
+        }
+        if (request.getStatus() != ContractStatus.PENDING) {
+            contractMessage.setText("Only pending requests can be confirmed.");
+            return;
+        }
+
+        try {
+            rentalService.confirm(request, agent);
+            Alert done = new Alert(Alert.AlertType.INFORMATION,
+                    "Contract confirmed. The warehouse at " + request.getWarehouse().getAddress()
+                            + " is now rented and the owner has been notified.");
+            done.setHeaderText(null);
+            done.showAndWait();
+        } catch (IllegalStateException e) {
+            contractMessage.setText(e.getMessage());
+        } catch (RuntimeException e) {
+            contractMessage.setText("Could not confirm the request.");
+            e.printStackTrace();
+        }
+        refresh();
     }
 
     @FXML

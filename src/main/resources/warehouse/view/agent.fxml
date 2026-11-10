@@ -50,7 +50,7 @@
                         <placeholder><Label text="No free warehouses are assigned to you."/></placeholder>
                     </TableView>
                     <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Button text="Rent selected warehouse" styleClass="primary-button" onAction="#handleRent"/>
+                        <Button text="Create rental request" styleClass="primary-button" onAction="#handleRent"/>
                         <Label fx:id="warehouseMessage" styleClass="error"/>
                     </HBox>
                 </VBox>
@@ -59,7 +59,7 @@
             <Tab text="My contracts">
                 <VBox spacing="10">
                     <padding><Insets top="14" right="16" bottom="14" left="16"/></padding>
-                    <Label text="Contracts you made" styleClass="section-title"/>
+                    <Label text="Your contracts and pending requests for your warehouses" styleClass="section-title"/>
                     <TableView fx:id="contractTable" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="cWarehouseColumn" text="Warehouse" prefWidth="220"/>
@@ -67,13 +67,14 @@
                             <TableColumn fx:id="cStartColumn" text="Start" prefWidth="95"/>
                             <TableColumn fx:id="cEndColumn" text="End" prefWidth="95"/>
                             <TableColumn fx:id="cTotalColumn" text="Total" prefWidth="100"/>
-                            <TableColumn fx:id="cCommissionColumn" text="My commission" prefWidth="115"/>
+                            <TableColumn fx:id="cCommissionColumn" text="Commission" prefWidth="115"/>
                             <TableColumn fx:id="cStatusColumn" text="Status" prefWidth="95"/>
                         </columns>
                         <placeholder><Label text="You have no contracts yet."/></placeholder>
                     </TableView>
                     <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Button text="Cancel selected contract" styleClass="danger-button" onAction="#handleCancelContract"/>
+                        <Button text="Confirm selected request" styleClass="primary-button" onAction="#handleConfirmRequest"/>
+                        <Button text="Cancel selected" styleClass="danger-button" onAction="#handleCancelContract"/>
                         <Label fx:id="contractMessage" styleClass="error"/>
                     </HBox>
                 </VBox>

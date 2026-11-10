@@ -11,7 +11,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import warehouse.dao.AgentDao;
+import warehouse.dao.NotificationDao;
 import warehouse.dao.RatingDao;
+import warehouse.dao.RentalContractDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.*;
 import warehouse.service.NotificationService;
@@ -66,7 +68,8 @@ public class OwnerController {
 
     private final WarehouseService warehouseService = new WarehouseService(new WarehouseDao());
     private final RatingService ratingService = new RatingService(new RatingDao());
-    private final NotificationService notificationService = new NotificationService();
+    private final NotificationService notificationService =
+            new NotificationService(new NotificationDao(), new RentalContractDao());
     private final AgentDao agentDao = new AgentDao();
 
     private Owner owner;

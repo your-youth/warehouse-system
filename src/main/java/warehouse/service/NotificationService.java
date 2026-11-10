@@ -1,5 +1,7 @@
 package warehouse.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import warehouse.dao.NotificationDao;
 import warehouse.dao.RentalContractDao;
 import warehouse.model.Notification;
@@ -14,11 +16,19 @@ public class NotificationService {
 
     public static final int EXPIRING_DAYS = 7;
 
-    private final NotificationDao notificationDao = new NotificationDao();
-    private final RentalContractDao contractDao = new RentalContractDao();
+    private static final Logger log = LogManager.getLogger(NotificationService.class);
+
+    private final NotificationDao notificationDao;
+    private final RentalContractDao contractDao;
+
+    public NotificationService(NotificationDao notificationDao, RentalContractDao contractDao) {
+        this.notificationDao = notificationDao;
+        this.contractDao = contractDao;
+    }
 
     public void send(User recipient, NotificationType type, String message, RentalContract contract) {
         notificationDao.save(new Notification(recipient, type, message, contract));
+        log.info("Notification {} sent to {}", type, recipient.getUsername());
     }
 
     public List<Notification> getFor(User user) {
@@ -31,6 +41,7 @@ public class NotificationService {
 
     public void markAllRead(User user) {
         notificationDao.markAllRead(user);
+        log.info("All notifications marked as read by {}", user.getUsername());
     }
 
     public void checkExpiringContracts() {

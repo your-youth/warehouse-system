@@ -1,30 +1,38 @@
 package warehouse.service;
 
-import org.hibernate.Session;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import warehouse.dao.RentalContractDao;
 import warehouse.dao.TenantDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.ContractStatus;
+import warehouse.model.Notification;
 import warehouse.model.NotificationType;
 import warehouse.model.RentalContract;
 import warehouse.model.Tenant;
 import warehouse.model.Warehouse;
 import warehouse.model.WarehouseStatus;
-import warehouse.util.HibernateUtil;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class RentalService {
 
-    private final RentalContractDao contractDao = new RentalContractDao();
-    private final TenantDao tenantDao = new TenantDao();
-    private final WarehouseDao warehouseDao = new WarehouseDao();
-    private final NotificationService notificationService = new NotificationService();
+    private static final Logger log = LogManager.getLogger(RentalService.class);
 
-    public RentalContract rent(Warehouse warehouse, Tenant tenant, Agent agent,
-                               LocalDate startDate, LocalDate endDate) {
+    private final RentalContractDao contractDao;
+    private final TenantDao tenantDao;
+    private final WarehouseDao warehouseDao;
+
+    public RentalService(RentalContractDao contractDao, TenantDao tenantDao, WarehouseDao warehouseDao) {
+        this.contractDao = contractDao;
+        this.tenantDao = tenantDao;
+        this.warehouseDao = warehouseDao;
+    }
+
+    public RentalContract createRequest(Warehouse warehouse, Tenant tenant, Agent agent,
+                                        LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("Please choose the start and end dates.");
         }
@@ -37,35 +45,48 @@ public class RentalService {
         if (warehouse.getStatus() != WarehouseStatus.FREE) {
             throw new IllegalStateException("This warehouse is already rented.");
         }
-        if (!isAssigned(agent, warehouse)) {
+        if (!contractDao.isAgentAssigned(agent, warehouse)) {
             throw new IllegalStateException("You are not assigned to this warehouse.");
-        }
-        if (contractDao.hasOverlap(warehouse, startDate, endDate)) {
-            throw new IllegalStateException("This warehouse already has a contract for these dates.");
-        }
-
-        if (tenant.getId() == null) {
-            tenantDao.save(tenant);
         }
 
         RentalContract contract = new RentalContract(warehouse, tenant, agent, startDate, endDate);
-        contract.setStatus(ContractStatus.ACTIVE);
-        contractDao.save(contract);
+        String message = "New rental request for " + warehouse.getAddress() + " from " + tenant.getFullName()
+                + " (" + startDate + " - " + endDate + "), created by " + agent.getFullName();
+        List<Notification> notifications = contractDao.findAgentsAssignedTo(warehouse).stream()
+                .map(a -> new Notification(a, NotificationType.NEW_RENTAL_REQUEST, message, contract))
+                .toList();
 
-        warehouse.setStatus(WarehouseStatus.RENTED);
-        warehouseDao.update(warehouse);
+        contractDao.saveRequest(contract, notifications);
+        log.info("Rental request created: warehouse id={}, tenant {}, agent {}",
+                warehouse.getId(), tenant.getFullName(), agent.getUsername());
+        return contract;
+    }
 
-        notificationService.send(warehouse.getOwner(), NotificationType.WAREHOUSE_RENTED,
-                "Your warehouse at " + warehouse.getAddress() + " was rented to " + tenant.getFullName()
-                        + " by " + agent.getFullName() + " (" + startDate + " - " + endDate + ")",
-                contract);
+    public RentalContract confirm(RentalContract request, Agent agent) {
+        if (request.getStatus() != ContractStatus.PENDING) {
+            throw new IllegalStateException("Only a pending request can be confirmed.");
+        }
+        if (!contractDao.isAgentAssigned(agent, request.getWarehouse())) {
+            throw new IllegalStateException("You are not assigned to this warehouse.");
+        }
+        RentalContract contract = contractDao.confirm(request.getId(), c -> new Notification(
+                c.getWarehouse().getOwner(), NotificationType.WAREHOUSE_RENTED,
+                "Your warehouse at " + c.getWarehouse().getAddress() + " was rented to "
+                        + c.getTenant().getFullName() + " by " + agent.getFullName()
+                        + " (" + c.getStartDate() + " - " + c.getEndDate() + ")",
+                c));
+        log.info("Rental contract id={} confirmed by {}", contract.getId(), agent.getUsername());
         return contract;
     }
 
     public void cancel(RentalContract contract) {
+        boolean wasActive = contract.getStatus() == ContractStatus.ACTIVE;
         contract.setStatus(ContractStatus.CANCELLED);
         contractDao.update(contract);
-        freeWarehouse(contract.getWarehouse());
+        if (wasActive) {
+            freeWarehouse(contract.getWarehouse());
+        }
+        log.info("Rental contract id={} cancelled", contract.getId());
     }
 
     public void expireFinishedContracts() {
@@ -73,22 +94,16 @@ public class RentalService {
             contract.setStatus(ContractStatus.EXPIRED);
             contractDao.update(contract);
             freeWarehouse(contract.getWarehouse());
+            log.info("Rental contract id={} expired", contract.getId());
         }
     }
 
     public List<RentalContract> getContractsOf(Agent agent) {
-        return contractDao.findByAgent(agent);
+        return contractDao.findForAgent(agent);
     }
 
     public List<Warehouse> getFreeWarehousesOf(Agent agent) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "select w from Warehouse w join w.agents a where a.id = :agentId and w.status = :status",
-                            Warehouse.class)
-                    .setParameter("agentId", agent.getId())
-                    .setParameter("status", WarehouseStatus.FREE)
-                    .list();
-        }
+        return contractDao.findFreeWarehousesAssignedTo(agent);
     }
 
     public List<Tenant> searchTenants(String text) {
@@ -96,19 +111,8 @@ public class RentalService {
     }
 
     private void freeWarehouse(Warehouse warehouse) {
-        warehouse.setStatus(WarehouseStatus.FREE);
-        warehouseDao.update(warehouse);
-    }
-
-    private boolean isAssigned(Agent agent, Warehouse warehouse) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Long count = session.createQuery(
-                            "select count(w) from Warehouse w join w.agents a where w.id = :warehouseId and a.id = :agentId",
-                            Long.class)
-                    .setParameter("warehouseId", warehouse.getId())
-                    .setParameter("agentId", agent.getId())
-                    .uniqueResult();
-            return count > 0;
-        }
+        Warehouse current = warehouseDao.findById(warehouse.getId()).orElse(warehouse);
+        current.setStatus(WarehouseStatus.FREE);
+        warehouseDao.update(current);
     }
 }

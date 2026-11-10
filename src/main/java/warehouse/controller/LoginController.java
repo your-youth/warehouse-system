@@ -1,5 +1,6 @@
 package warehouse.controller;
 
+import warehouse.dao.UserDao;
 import warehouse.model.Role;
 import warehouse.model.User;
 import warehouse.service.AuthService;
@@ -25,7 +26,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
 
-    private final AuthService authService = new AuthService();
+    private final AuthService authService = new AuthService(new UserDao());
 
     @FXML
     private void handleLogin() {

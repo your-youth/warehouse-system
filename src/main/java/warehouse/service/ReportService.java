@@ -1,5 +1,8 @@
 package warehouse.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import warehouse.dao.OwnerDao;
 import warehouse.dao.RentalContractDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
@@ -18,7 +21,10 @@ import java.util.Map;
 
 public class ReportService {
 
-    public record AgentReport(String agentName, int contracts, double revenue, double commission) {
+    private static final Logger log = LogManager.getLogger(ReportService.class);
+
+    public record AgentReport(String agentName, String phone, String email, double fee, double rating,
+                              int contracts, double revenue, double commission) {
     }
 
     public record WarehouseReport(String address, String owner, int contracts, double revenue) {
@@ -32,8 +38,18 @@ public class ReportService {
         }
     }
 
-    private final RentalContractDao contractDao = new RentalContractDao();
-    private final WarehouseDao warehouseDao = new WarehouseDao();
+    private final RentalContractDao contractDao;
+    private final WarehouseDao warehouseDao;
+    private final OwnerDao ownerDao;
+    private final RatingService ratingService;
+
+    public ReportService(RentalContractDao contractDao, WarehouseDao warehouseDao,
+                         OwnerDao ownerDao, RatingService ratingService) {
+        this.contractDao = contractDao;
+        this.warehouseDao = warehouseDao;
+        this.ownerDao = ownerDao;
+        this.ratingService = ratingService;
+    }
 
     public List<RentalContract> getContracts(LocalDate from, LocalDate to, User viewer) {
         List<RentalContract> contracts = contractDao.findStartedBetween(from, to);
@@ -55,6 +71,7 @@ public class ReportService {
                 : warehouseDao.findAll();
         long rented = warehouses.stream().filter(w -> w.getStatus() == WarehouseStatus.RENTED).count();
 
+        log.info("Report summary {} to {} for {}", from, to, viewer == null ? "-" : viewer.getUsername());
         return new Summary(contracts.size(), revenue, commission, warehouses.size(), rented);
     }
 
@@ -66,8 +83,13 @@ public class ReportService {
 
         List<AgentReport> result = new ArrayList<>();
         for (List<RentalContract> list : byAgent.values()) {
+            Agent agent = list.get(0).getAgent();
             result.add(new AgentReport(
-                    list.get(0).getAgent().getFullName(),
+                    agent.getFullName(),
+                    agent.getPhone(),
+                    agent.getEmail(),
+                    agent.getFee(),
+                    ratingService.getAverageRating(agent),
                     list.size(),
                     list.stream().mapToDouble(RentalContract::getTotalPrice).sum(),
                     list.stream().mapToDouble(RentalContract::getAgentCommission).sum()));
@@ -93,5 +115,34 @@ public class ReportService {
         }
         result.sort(Comparator.comparingDouble(WarehouseReport::revenue).reversed());
         return result;
+    }
+
+    public List<Warehouse> getAvailableWarehouses(User viewer) {
+        List<Warehouse> warehouses;
+        if (viewer instanceof Owner owner) {
+            warehouses = new ArrayList<>(warehouseDao.findByOwner(owner));
+            warehouses.removeIf(w -> w.getStatus() != WarehouseStatus.FREE);
+        } else if (viewer instanceof Agent agent) {
+            warehouses = contractDao.findFreeWarehousesAssignedTo(agent);
+        } else {
+            warehouses = warehouseDao.findFree();
+        }
+        warehouses.sort(Comparator.comparing(Warehouse::getAddress));
+        return warehouses;
+    }
+
+    public List<Warehouse> getWarehousesOf(Owner owner) {
+        List<Warehouse> warehouses = new ArrayList<>(warehouseDao.findByOwner(owner));
+        warehouses.sort(Comparator.comparing(Warehouse::getAddress));
+        return warehouses;
+    }
+
+    public List<Owner> getOwnersFor(User viewer) {
+        if (viewer instanceof Owner owner) {
+            return List.of(owner);
+        }
+        List<Owner> owners = new ArrayList<>(ownerDao.findAll());
+        owners.sort(Comparator.comparing(Owner::getFullName));
+        return owners;
     }
 }

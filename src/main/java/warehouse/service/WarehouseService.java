@@ -34,6 +34,9 @@ public class WarehouseService {
 
     public Warehouse updateWarehouse(Warehouse w) {
         validate(w.getAddress(), w.getArea(), w.getPricePerMonth());
+        Warehouse current = warehouseDao.findById(w.getId())
+                .orElseThrow(() -> new IllegalArgumentException("This warehouse no longer exists"));
+        w.setStatus(current.getStatus());
         log.info("Warehouse updated: id={}", w.getId());
         return warehouseDao.update(w);
     }

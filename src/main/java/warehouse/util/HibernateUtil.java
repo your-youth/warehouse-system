@@ -28,13 +28,13 @@ public final class HibernateUtil {
 
             Properties local = loadLocalSettings();
             if (local.getProperty("db.url") != null) {
-                cfg.setProperty("hibernate.connection.url", local.getProperty("db.url"));
+                cfg.setProperty("hibernate.connection.url", local.getProperty("db.url").trim());
             }
             if (local.getProperty("db.username") != null) {
-                cfg.setProperty("hibernate.connection.username", local.getProperty("db.username"));
+                cfg.setProperty("hibernate.connection.username", local.getProperty("db.username").trim());
             }
             if (local.getProperty("db.password") != null) {
-                cfg.setProperty("hibernate.connection.password", local.getProperty("db.password"));
+                cfg.setProperty("hibernate.connection.password", local.getProperty("db.password").trim());
             }
 
             sessionFactory = cfg.buildSessionFactory();

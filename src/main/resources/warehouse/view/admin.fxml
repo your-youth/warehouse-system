@@ -7,7 +7,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="warehouse.controller.AdminController"
-            prefWidth="900" prefHeight="550">
+            prefWidth="950" prefHeight="600">
 
     <top>
         <HBox spacing="10" alignment="CENTER_LEFT">
@@ -23,7 +23,6 @@
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE">
 
-
             <Tab text="Owners">
                 <HBox spacing="16">
                     <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
@@ -37,8 +36,8 @@
                         </columns>
                     </TableView>
 
-                    <VBox spacing="8" prefWidth="240">
-                        <Label text="New owner">
+                    <VBox spacing="8" prefWidth="250">
+                        <Label text="Owner">
                             <font><Font name="System Bold" size="14"/></font>
                         </Label>
                         <TextField fx:id="ownerUsernameField" promptText="Username"/>
@@ -48,11 +47,12 @@
                         <TextField fx:id="ownerPhoneField" promptText="Phone"/>
                         <TextField fx:id="ownerEmailField" promptText="Email"/>
                         <Button text="Create owner" maxWidth="Infinity" onAction="#onCreateOwner"/>
+                        <Button text="Save changes to selected" maxWidth="Infinity" onAction="#onUpdateOwner"/>
+                        <Button text="Clear form" maxWidth="Infinity" onAction="#onClearOwnerForm"/>
                         <Label fx:id="ownerMessageLabel" wrapText="true"/>
                     </VBox>
                 </HBox>
             </Tab>
-
 
             <Tab text="Warehouse agents">
                 <HBox spacing="16">
@@ -68,8 +68,8 @@
                         </columns>
                     </TableView>
 
-                    <VBox spacing="8" prefWidth="240">
-                        <Label text="New agent">
+                    <VBox spacing="8" prefWidth="250">
+                        <Label text="Agent">
                             <font><Font name="System Bold" size="14"/></font>
                         </Label>
                         <TextField fx:id="agentUsernameField" promptText="Username"/>
@@ -80,6 +80,8 @@
                         <TextField fx:id="agentEmailField" promptText="Email"/>
                         <TextField fx:id="agentFeeField" promptText="Fee, % (e.g. 5)"/>
                         <Button text="Create agent" maxWidth="Infinity" onAction="#onCreateAgent"/>
+                        <Button text="Save changes to selected" maxWidth="Infinity" onAction="#onUpdateAgent"/>
+                        <Button text="Clear form" maxWidth="Infinity" onAction="#onClearAgentForm"/>
                         <Label fx:id="agentMessageLabel" wrapText="true"/>
                     </VBox>
                 </HBox>

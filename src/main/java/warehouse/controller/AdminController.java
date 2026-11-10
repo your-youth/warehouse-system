@@ -55,7 +55,6 @@ public class AdminController {
 
     @FXML
     private void initialize() {
-        // имя в кавычках = имя геттера без "get": "username" → getUsername()
         ownerUsernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
         ownerNameCol.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         ownerPhoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
@@ -67,8 +66,15 @@ public class AdminController {
         agentEmailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         agentFeeCol.setCellValueFactory(new PropertyValueFactory<>("fee"));
 
+
+        ownersTable.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, selected) -> fillOwnerForm(selected));
+        agentsTable.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, selected) -> fillAgentForm(selected));
+
         refreshTables();
     }
+
 
     @FXML
     private void onCreateOwner() {
@@ -78,13 +84,53 @@ public class AdminController {
                     ownerFirstNameField.getText(), ownerLastNameField.getText(),
                     ownerPhoneField.getText(), ownerEmailField.getText());
             showSuccess(ownerMessageLabel, "Owner created");
-            clear(ownerUsernameField, ownerPasswordField, ownerFirstNameField,
-                    ownerLastNameField, ownerPhoneField, ownerEmailField);
+            onClearOwnerForm();
             refreshTables();
         } catch (IllegalArgumentException e) {
-            showError(ownerMessageLabel, e.getMessage());   // ошибка из UserService
+            showError(ownerMessageLabel, e.getMessage());
         }
     }
+
+    @FXML
+    private void onUpdateOwner() {
+        try {
+            userService.updateOwnerProfile(
+                    ownersTable.getSelectionModel().getSelectedItem(),
+                    ownerFirstNameField.getText(), ownerLastNameField.getText(),
+                    ownerPhoneField.getText(), ownerEmailField.getText());
+            showSuccess(ownerMessageLabel, "Profile updated");
+            onClearOwnerForm();
+            refreshTables();
+        } catch (IllegalArgumentException e) {
+            showError(ownerMessageLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onClearOwnerForm() {
+        ownersTable.getSelectionModel().clearSelection();
+        clear(ownerUsernameField, ownerPasswordField, ownerFirstNameField,
+                ownerLastNameField, ownerPhoneField, ownerEmailField);
+        ownerUsernameField.setDisable(false);
+        ownerPasswordField.setDisable(false);
+    }
+
+    private void fillOwnerForm(Owner o) {
+        if (o == null) {
+            return;
+        }
+        ownerUsernameField.setText(o.getUsername());
+        ownerPasswordField.clear();
+        ownerFirstNameField.setText(o.getFirstName());
+        ownerLastNameField.setText(o.getLastName());
+        ownerPhoneField.setText(o.getPhone());
+        ownerEmailField.setText(o.getEmail());
+
+        ownerUsernameField.setDisable(true);
+        ownerPasswordField.setDisable(true);
+    }
+
+
 
     @FXML
     private void onCreateAgent() {
@@ -95,13 +141,54 @@ public class AdminController {
                     agentFirstNameField.getText(), agentLastNameField.getText(),
                     agentPhoneField.getText(), agentEmailField.getText(), fee);
             showSuccess(agentMessageLabel, "Agent created");
-            clear(agentUsernameField, agentPasswordField, agentFirstNameField,
-                    agentLastNameField, agentPhoneField, agentEmailField, agentFeeField);
+            onClearAgentForm();
             refreshTables();
         } catch (IllegalArgumentException e) {
             showError(agentMessageLabel, e.getMessage());
         }
     }
+
+    @FXML
+    private void onUpdateAgent() {
+        try {
+            userService.updateAgentProfile(
+                    agentsTable.getSelectionModel().getSelectedItem(),
+                    agentFirstNameField.getText(), agentLastNameField.getText(),
+                    agentPhoneField.getText(), agentEmailField.getText(),
+                    parseFee(agentFeeField.getText()));
+            showSuccess(agentMessageLabel, "Profile updated");
+            onClearAgentForm();
+            refreshTables();
+        } catch (IllegalArgumentException e) {
+            showError(agentMessageLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onClearAgentForm() {
+        agentsTable.getSelectionModel().clearSelection();
+        clear(agentUsernameField, agentPasswordField, agentFirstNameField,
+                agentLastNameField, agentPhoneField, agentEmailField, agentFeeField);
+        agentUsernameField.setDisable(false);
+        agentPasswordField.setDisable(false);
+    }
+
+    private void fillAgentForm(Agent a) {
+        if (a == null) {
+            return;
+        }
+        agentUsernameField.setText(a.getUsername());
+        agentPasswordField.clear();
+        agentFirstNameField.setText(a.getFirstName());
+        agentLastNameField.setText(a.getLastName());
+        agentPhoneField.setText(a.getPhone());
+        agentEmailField.setText(a.getEmail());
+        agentFeeField.setText(String.valueOf(a.getFee()));
+        agentUsernameField.setDisable(true);
+        agentPasswordField.setDisable(true);
+    }
+
+
 
     @FXML
     private void onLogout() {

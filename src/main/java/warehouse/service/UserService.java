@@ -85,4 +85,37 @@ public class UserService {
             throw new IllegalArgumentException(field + " is required");
         }
     }
+
+    // редактирование профиля владельца
+    public Owner updateOwnerProfile(Owner owner, String firstName, String lastName,
+                                    String phone, String email) {
+        if (owner == null) {
+            throw new IllegalArgumentException("Select an owner in the table");
+        }
+        requireNotBlank(firstName, "First name");
+        requireNotBlank(lastName, "Last name");
+        owner.setFirstName(firstName.trim());
+        owner.setLastName(lastName.trim());
+        owner.setPhone(phone);
+        owner.setEmail(email);
+        return ownerDao.update(owner);
+    }
+
+
+    public Agent updateAgentProfile(Agent agent, String firstName, String lastName, String phone, String email, double fee) {
+        if (agent == null) {
+            throw new IllegalArgumentException("Select an agent in the table");
+        }
+        requireNotBlank(firstName, "First name");
+        requireNotBlank(lastName, "Last name");
+        if (fee < 0 || fee > 100) {
+            throw new IllegalArgumentException("Fee must be between 0 and 100 %");
+        }
+        agent.setFirstName(firstName.trim());
+        agent.setLastName(lastName.trim());
+        agent.setPhone(phone);
+        agent.setEmail(email);
+        agent.setFee(fee);
+        return agentDao.update(agent);
+    }
 }

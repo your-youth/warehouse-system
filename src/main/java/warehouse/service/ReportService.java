@@ -4,10 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import warehouse.dao.OwnerDao;
 import warehouse.dao.RentalContractDao;
+import warehouse.dao.TenantDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.Owner;
 import warehouse.model.RentalContract;
+import warehouse.model.Tenant;
 import warehouse.model.User;
 import warehouse.model.Warehouse;
 import warehouse.model.WarehouseStatus;
@@ -41,13 +43,15 @@ public class ReportService {
     private final RentalContractDao contractDao;
     private final WarehouseDao warehouseDao;
     private final OwnerDao ownerDao;
+    private final TenantDao tenantDao;
     private final RatingService ratingService;
 
     public ReportService(RentalContractDao contractDao, WarehouseDao warehouseDao,
-                         OwnerDao ownerDao, RatingService ratingService) {
+                         OwnerDao ownerDao, TenantDao tenantDao, RatingService ratingService) {
         this.contractDao = contractDao;
         this.warehouseDao = warehouseDao;
         this.ownerDao = ownerDao;
+        this.tenantDao = tenantDao;
         this.ratingService = ratingService;
     }
 
@@ -122,13 +126,29 @@ public class ReportService {
         if (viewer instanceof Owner owner) {
             warehouses = new ArrayList<>(warehouseDao.findByOwner(owner));
             warehouses.removeIf(w -> w.getStatus() != WarehouseStatus.FREE);
-        } else if (viewer instanceof Agent agent) {
-            warehouses = contractDao.findFreeWarehousesAssignedTo(agent);
         } else {
-            warehouses = warehouseDao.findFree();
+            warehouses = new ArrayList<>(warehouseDao.findFree());
         }
         warehouses.sort(Comparator.comparing(Warehouse::getAddress));
         return warehouses;
+    }
+
+    public List<Tenant> getTenantsFor(User viewer) {
+        List<Tenant> tenants = new ArrayList<>(viewer instanceof Owner owner
+                ? contractDao.findTenantsOfOwner(owner)
+                : tenantDao.findAll());
+        tenants.sort(Comparator.comparing(Tenant::getFullName));
+        return tenants;
+    }
+
+    public List<RentalContract> getTenantHistory(Tenant tenant, User viewer) {
+        List<RentalContract> history = new ArrayList<>(contractDao.findByTenant(tenant));
+        if (viewer instanceof Owner owner) {
+            history.removeIf(c -> !c.getWarehouse().getOwner().getId().equals(owner.getId()));
+        }
+        log.info("Tenant history for {} requested by {}", tenant.getFullName(),
+                viewer == null ? "-" : viewer.getUsername());
+        return history;
     }
 
     public List<Warehouse> getWarehousesOf(Owner owner) {

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import warehouse.dao.OwnerDao;
 import warehouse.dao.RatingDao;
 import warehouse.dao.RentalContractDao;
+import warehouse.dao.TenantDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.ContractStatus;
@@ -31,6 +32,7 @@ class ReportServiceTest {
     private Agent petrova;
     private Warehouse sofia;
     private Warehouse plovdiv;
+    private Tenant tenant;
     private ReportService service;
 
     @BeforeEach
@@ -43,7 +45,7 @@ class ReportServiceTest {
         plovdiv = TestData.warehouse(11, dimitrov, 3000);
         sofia.setStatus(WarehouseStatus.RENTED);
 
-        Tenant tenant = new Tenant("Dimitar", "Stoyanov", "0877");
+        tenant = TestData.withId(new Tenant("Dimitar", "Stoyanov", "0877"), 50);
         LocalDate start = LocalDate.of(2026, 3, 1);
         RentalContract first = new RentalContract(sofia, tenant, petrova, start, start.plusMonths(6));
         RentalContract second = new RentalContract(plovdiv, tenant, georgieva, start, start.plusMonths(2));
@@ -53,7 +55,25 @@ class ReportServiceTest {
         FakeContractDao contractDao = new FakeContractDao(new ArrayList<>(List.of(first, second)));
         FakeWarehouseDao warehouseDao = new FakeWarehouseDao(List.of(sofia, plovdiv));
         RatingService ratingService = new RatingService(new FakeRatingDao());
-        service = new ReportService(contractDao, warehouseDao, new OwnerDao(), ratingService);
+        service = new ReportService(contractDao, warehouseDao, new OwnerDao(), new TenantDao(), ratingService);
+    }
+
+    @Test
+    void agentSeesAllAvailableWarehouses() {
+        assertEquals(List.of(plovdiv), service.getAvailableWarehouses(petrova));
+    }
+
+    @Test
+    void tenantHistoryShowsAllContractsOfTheTenant() {
+        assertEquals(2, service.getTenantHistory(tenant, petrova).size());
+    }
+
+    @Test
+    void ownerSeesTenantHistoryOnlyForTheirWarehouses() {
+        List<RentalContract> history = service.getTenantHistory(tenant, ivanov);
+
+        assertEquals(1, history.size());
+        assertEquals(sofia, history.get(0).getWarehouse());
     }
 
     @Test
@@ -114,6 +134,11 @@ class ReportServiceTest {
         @Override
         public List<RentalContract> findStartedBetween(LocalDate from, LocalDate to) {
             return new ArrayList<>(contracts);
+        }
+
+        @Override
+        public List<RentalContract> findByTenant(Tenant tenant) {
+            return contracts.stream().filter(c -> c.getTenant().getId().equals(tenant.getId())).toList();
         }
     }
 

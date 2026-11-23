@@ -5,7 +5,9 @@ import org.hibernate.Session;
 import warehouse.model.Agent;
 import warehouse.model.ContractStatus;
 import warehouse.model.Notification;
+import warehouse.model.Owner;
 import warehouse.model.RentalContract;
+import warehouse.model.Tenant;
 import warehouse.model.Warehouse;
 import warehouse.model.WarehouseStatus;
 import warehouse.util.HibernateUtil;
@@ -41,6 +43,26 @@ public class RentalContractDao extends GenericDao<RentalContract> {
                             "from RentalContract c where c.warehouse.id = :warehouseId order by c.startDate desc",
                             RentalContract.class)
                     .setParameter("warehouseId", warehouse.getId())
+                    .list();
+        }
+    }
+
+    public List<RentalContract> findByTenant(Tenant tenant) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(
+                            "from RentalContract c where c.tenant.id = :tenantId order by c.startDate desc",
+                            RentalContract.class)
+                    .setParameter("tenantId", tenant.getId())
+                    .list();
+        }
+    }
+
+    public List<Tenant> findTenantsOfOwner(Owner owner) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(
+                            "select distinct c.tenant from RentalContract c where c.warehouse.owner.id = :ownerId",
+                            Tenant.class)
+                    .setParameter("ownerId", owner.getId())
                     .list();
         }
     }

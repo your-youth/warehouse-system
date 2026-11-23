@@ -133,5 +133,26 @@
                 </TableView>
             </VBox>
         </Tab>
+        <Tab text="Tenant history">
+            <VBox spacing="8">
+                <padding><Insets top="10" right="0" bottom="0" left="0"/></padding>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Tenant" styleClass="card-label"/>
+                    <ComboBox fx:id="tenantCombo" prefWidth="260"/>
+                </HBox>
+                <TableView fx:id="tenantHistoryTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="thWarehouseColumn" text="Warehouse" prefWidth="220"/>
+                        <TableColumn fx:id="thOwnerColumn" text="Owner" prefWidth="140"/>
+                        <TableColumn fx:id="thAgentColumn" text="Agent" prefWidth="140"/>
+                        <TableColumn fx:id="thStartColumn" text="Start" prefWidth="95"/>
+                        <TableColumn fx:id="thEndColumn" text="End" prefWidth="95"/>
+                        <TableColumn fx:id="thTotalColumn" text="Total" prefWidth="110"/>
+                        <TableColumn fx:id="thStatusColumn" text="Status" prefWidth="95"/>
+                    </columns>
+                    <placeholder><Label text="Choose a tenant to see their rental history."/></placeholder>
+                </TableView>
+            </VBox>
+        </Tab>
     </TabPane>
 </VBox>

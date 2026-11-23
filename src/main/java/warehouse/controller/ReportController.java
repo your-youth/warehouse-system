@@ -10,10 +10,12 @@ import javafx.util.StringConverter;
 import warehouse.dao.OwnerDao;
 import warehouse.dao.RatingDao;
 import warehouse.dao.RentalContractDao;
+import warehouse.dao.TenantDao;
 import warehouse.dao.WarehouseDao;
 import warehouse.model.Agent;
 import warehouse.model.Owner;
 import warehouse.model.RentalContract;
+import warehouse.model.Tenant;
 import warehouse.model.User;
 import warehouse.model.Warehouse;
 import warehouse.service.RatingService;
@@ -95,8 +97,18 @@ public class ReportController {
     @FXML private TableColumn<Warehouse, String> owPriceColumn;
     @FXML private TableColumn<Warehouse, String> owAgentsColumn;
 
-    private final ReportService reportService = new ReportService(
-            new RentalContractDao(), new WarehouseDao(), new OwnerDao(), new RatingService(new RatingDao()));
+    @FXML private ComboBox<Tenant> tenantCombo;
+    @FXML private TableView<RentalContract> tenantHistoryTable;
+    @FXML private TableColumn<RentalContract, String> thWarehouseColumn;
+    @FXML private TableColumn<RentalContract, String> thOwnerColumn;
+    @FXML private TableColumn<RentalContract, String> thAgentColumn;
+    @FXML private TableColumn<RentalContract, String> thStartColumn;
+    @FXML private TableColumn<RentalContract, String> thEndColumn;
+    @FXML private TableColumn<RentalContract, String> thTotalColumn;
+    @FXML private TableColumn<RentalContract, String> thStatusColumn;
+
+    private final ReportService reportService = new ReportService(new RentalContractDao(), new WarehouseDao(),
+            new OwnerDao(), new TenantDao(), new RatingService(new RatingDao()));
 
     @FXML
     private void initialize() {
@@ -143,11 +155,36 @@ public class ReportController {
         });
         ownerCombo.valueProperty().addListener((obs, old, owner) -> showOwnerWarehouses(owner));
 
+        column(thWarehouseColumn, c -> c.getWarehouse().getAddress());
+        column(thOwnerColumn, c -> c.getWarehouse().getOwner().getFullName());
+        column(thAgentColumn, c -> c.getAgent().getFullName());
+        column(thStartColumn, RentalContract::getStartDate);
+        column(thEndColumn, RentalContract::getEndDate);
+        column(thTotalColumn, c -> money(c.getTotalPrice()));
+        column(thStatusColumn, RentalContract::getStatus);
+        tenantCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(Tenant t) {
+                return t == null ? "" : t.getFullName() + (t.getPhone() == null ? "" : " (" + t.getPhone() + ")");
+            }
+            @Override public Tenant fromString(String s) { return null; }
+        });
+        tenantCombo.valueProperty().addListener((obs, old, tenant) -> showTenantHistory(tenant));
+
         periodCombo.getItems().setAll(THIS_MONTH, LAST_MONTH, THIS_QUARTER, THIS_YEAR, CUSTOM);
         periodCombo.valueProperty().addListener((obs, old, value) -> applyPeriod(value));
         periodCombo.setValue(THIS_MONTH);
 
         handleShow();
+    }
+
+    private void showTenantHistory(Tenant tenant) {
+        try {
+            tenantHistoryTable.getItems().setAll(tenant == null ? List.of()
+                    : reportService.getTenantHistory(tenant, UserSession.getCurrentUser()));
+        } catch (RuntimeException e) {
+            errorLabel.setText("Could not load the tenant history.");
+            e.printStackTrace();
+        }
     }
 
     private void showOwnerWarehouses(Owner owner) {
@@ -198,6 +235,12 @@ public class ReportController {
                     : ownerCombo.getItems().stream().filter(o -> selected != null && o.getId().equals(selected.getId()))
                             .findFirst().orElse(null));
             showOwnerWarehouses(ownerCombo.getValue());
+
+            Tenant chosen = tenantCombo.getValue();
+            tenantCombo.getItems().setAll(reportService.getTenantsFor(viewer));
+            tenantCombo.setValue(tenantCombo.getItems().stream()
+                    .filter(t -> chosen != null && t.getId().equals(chosen.getId())).findFirst().orElse(null));
+            showTenantHistory(tenantCombo.getValue());
         } catch (RuntimeException e) {
             errorLabel.setText("Could not load the report.");
             e.printStackTrace();
